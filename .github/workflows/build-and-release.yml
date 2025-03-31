@@ -38,6 +38,8 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout code
@@ -47,13 +49,13 @@ jobs:
       uses: actions/download-artifact@v4.2.1
       with:
         name: vidfusion-ubuntu-latest
-        path: ./
+        path: ./'
 
     - name: Download Windows artifact
       uses: actions/download-artifact@v4.2.1
       with:
         name: vidfusion-windows-latest
-        path: ./
+        path: ./'
 
     - name: Rename artifacts for release
       run: |
