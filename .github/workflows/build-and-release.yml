@@ -7,41 +7,29 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v5.4.0
+      uses: actions/setup-go@v4
       with:
         go-version: 1.20
 
-    - name: Install dependencies for Windows build
+    - name: Build
       run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-mingw-w64
+        go build -o vidfusion${{ matrix.os == 'windows-latest' && '.exe' || '' }} vidfusion.go
 
-    - name: Build for Windows
-      run: |
-        GOOS=windows GOARCH=amd64 go build -o vidfusion_windows.exe vidfusion.go
-
-    - name: Build for Linux
-      run: |
-        GOOS=linux GOARCH=amd64 go build -o vidfusion_linux vidfusion.go
-
-    - name: Upload Windows artifact
-      uses: actions/upload-artifact@v4.6.2
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
       with:
-        name: vidfusion-windows
-        path: vidfusion_windows.exe
-
-    - name: Upload Linux artifact
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: vidfusion-linux
-        path: vidfusion_linux
+        name: vidfusion-${{ matrix.os }}
+        path: vidfusion${{ matrix.os == 'windows-latest' && '.exe' || '' }}
 
   release:
     needs: build
@@ -52,10 +40,10 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2.2.1
+      uses: softprops/action-gh-release@v1
       with:
         files: |
-          vidfusion_windows.exe
-          vidfusion_linux
+          vidfusion_ubuntu-latest
+          vidfusion_windows-latest.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
