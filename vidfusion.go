@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const version = "VidFusion 1.0.0"
+const version = "VidFusion 1.0.1"
 
 func detectHardware() string {
 	cmd := exec.Command("ffmpeg", "-hide_banner", "-hwaccels")
