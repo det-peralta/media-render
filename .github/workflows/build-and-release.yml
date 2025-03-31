@@ -30,6 +30,10 @@ jobs:
       with:
         name: vidfusion-${{ matrix.os }}
         path: vidfusion${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+        if-no-files-found: warn
+        compression-level: 6
+        overwrite: false
+        include-hidden-files: false
 
   release:
     needs: build
@@ -39,11 +43,28 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4.2.2
 
+    - name: Download Ubuntu artifact
+      uses: actions/download-artifact@v4.2.1
+      with:
+        name: vidfusion-ubuntu-latest
+        path: ./
+
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4.2.1
+      with:
+        name: vidfusion-windows-latest
+        path: ./
+
+    - name: Rename artifacts for release
+      run: |
+        mv vidfusion vidfusion-linux
+        mv vidfusion.exe vidfusion-windows.exe
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2.2.1
       with:
         files: |
-          vidfusion_ubuntu-latest
-          vidfusion_windows-latest.exe
+          vidfusion-linux
+          vidfusion-windows.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
