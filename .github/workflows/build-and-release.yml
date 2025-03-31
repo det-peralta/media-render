@@ -49,18 +49,24 @@ jobs:
       uses: actions/download-artifact@v4.2.1
       with:
         name: vidfusion-ubuntu-latest
-        path: ./'
+        path: ./ubuntu-artifact
 
     - name: Download Windows artifact
       uses: actions/download-artifact@v4.2.1
       with:
         name: vidfusion-windows-latest
-        path: ./'
+        path: ./windows-artifact
 
-    - name: Rename artifacts for release
+    - name: List downloaded files
       run: |
-        mv vidfusion vidfusion-linux
-        mv vidfusion.exe vidfusion-windows.exe
+        ls -la ./ubuntu-artifact
+        ls -la ./windows-artifact
+
+    - name: Prepare artifacts for release
+      run: |
+        cp ./ubuntu-artifact/vidfusion ./vidfusion-linux
+        cp ./windows-artifact/vidfusion.exe ./vidfusion-windows.exe
+        chmod +x ./vidfusion-linux
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2.2.1
